@@ -1,6 +1,7 @@
 import unittest
 
 from pylinq.utils.observable import *
+from mock import Mock
 
 class ObservableTestCase(unittest.TestCase):
     def setUp(self):
@@ -50,4 +51,48 @@ class ObservableTestCase(unittest.TestCase):
         self.assertEqual(witness1[0], True)
         self.assertEqual(witness2[0], True)
         
+    def test_unbind_event_handler(self):
+        self.observable.add_events('spam')
         
+        class Foo(object):
+            def bar(self):
+                pass
+        
+        foo = Foo()
+        foo.bar = Mock()
+        
+        self.observable.bind('spam', foo.bar)
+        self.observable.trigger('spam')
+        
+        self.assertTrue(foo.bar.called)
+        
+        self.observable.unbind('spam', foo.bar)
+        self.observable.trigger('spam')
+        
+        self.assertEqual(foo.bar.call_count, 1)
+        
+    def test_unbind_all_event_handlers(self):
+        self.observable.add_events('spam')
+        
+        class Foo(object):
+            def bar(self):
+                pass
+            def baz(self):
+                pass
+        
+        foo = Foo()
+        foo.bar = Mock()
+        foo.baz = Mock()
+        
+        self.observable.bind('spam', foo.bar)
+        self.observable.bind('spam', foo.baz)
+        self.observable.trigger('spam')
+        
+        self.assertEqual(foo.bar.call_count, 1)
+        self.assertEqual(foo.bar.call_count, 1)
+        
+        self.observable.unbind('spam')
+        self.observable.trigger('spam')
+        
+        self.assertEqual(foo.bar.call_count, 1)
+        self.assertEqual(foo.baz.call_count, 1)

@@ -1,0 +1,25 @@
+body {
+	width: 80%;
+	margin: auto;
+	visibility: hidden;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+#players {
+    margin-bottom: 2em;
+}
+
+#players, #players td, #players th {
+    border: 1px solid #ccc;
+}
+
+#players td, #players th {
+    padding: 1em;
+}
+
+#join_form label {
+    margin-right: 1em;
+}

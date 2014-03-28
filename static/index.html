@@ -2,25 +2,43 @@
 <html>
   <head>
     <title>PyLinq</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="/static/js/lib/ember-1.0.0-rc.1.js"></script>
-    <script src="/static/js/pylinq.js"></script>
+    <meta charset="utf-8">
+    
+    <script data-main="/static/js/pylinq.js" src="/static/js/lib/require-jquery.js"></script>
+    
+    <link rel="icon" type="image/jpg" href="/static/img/linq.jpg" />
+    
     <link rel="stylesheet" href="/static/css/normalize.css" />
     <link rel="stylesheet" href="/static/css/pylinq.css" />
   </head>
-  <body>
-    <h1>Pylinq development console</h1>
-    <div class="db">
-      <input type="text" id="player_name">
-      <button id="add_player">Add player</button>
-    </div>
-    <div class="db">
-      <button id="start_game">Start game</button>
-    <button id="player_list">Get players list</button>
-    </div>
-    <div class="db">
-      <textarea id="results"></textarea>
-    </div>
+  <body data-bind="visible: isConnected()">
+    <h1>Pylinq</h1>
+    <h2>Players</h2>
+    <table id="players" data-bind="with: playerList">
+      <thead>
+        <tr><th>Name</th><th>Score</th></tr>
+      </thead>
+      <tbody data-bind="visible: !hasPlayers()">
+        <tr><td colspan="2">No players yet</td></tr>
+      </tbody>
+      <tbody data-bind="visible: hasPlayers(), foreach: players().sort(sortPlayers)">
+        <tr data-bind="css: { bold: $root.playerName() === name() }">
+          <td>
+              <span data-bind="text: name"></span>
+              <span data-bind="visible: $root.playerName() === name() && $root.getPlayerRole()">
+                (<span data-bind="text: $root.getPlayerRole()"></span>)
+              </span>
+          </td>
+          <td data-bind="text: score"></td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <form id="join_form" data-bind="visible: !hasJoined()">
+      <label for="player_name">Pick a player name</label>
+      <input id="player_name" data-bind="value: playerName" type="text">
+      <button id="join" data-bind="click: join">Join!</button>
+    </form>
+    <button id="start" data-bind="visible: canStartGame(), click: startGame">Start game</button>
   </body>
 </html>

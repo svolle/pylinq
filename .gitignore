@@ -1,2 +1,9 @@
+.settings
+.project
+.idea
+.pydevproject
+.coverage
+venv
+venv_windows
 *.pyc
 *.pyo
