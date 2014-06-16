@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 from random import shuffle
+import random
 import settings
 import logging
-
+import pathlib
+import json
+import os
 
 from pylinq.utils.observable import Observable
 from pylinq.player import Player
@@ -12,6 +15,8 @@ from pylinq.event import Events
 MIN_PLAYER_COUNT = settings.get_game_setting('min_player_count')
 MAX_PLAYER_COUNT = 8
 SPIES_COUNT = 2
+
+PATH_TO_WORD_CARDS = pathlib.Path(os.getcwd()) / 'resources' / 'cards.json'
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -33,6 +38,7 @@ class GameState(Observable):
         self._master_player = None
         self.started = False
         self.round_played = 0
+        self.cards = []
 
         super(GameState, self).__init__()
         self.add_events(Events.GAME_STARTED,
@@ -46,6 +52,8 @@ class GameState(Observable):
                         Events.PLAYER_ROLE_ASSIGNED,
                         Events.ROUND_RESOLVED,
                         )
+
+        self.load_cards()
 
     @property
     def master_player(self):
@@ -62,6 +70,13 @@ class GameState(Observable):
 
         if player is not None:
             self.trigger(Events.NEW_MASTER, player)
+
+    def load_cards(self):
+        """
+        Load word cards from disk
+        """
+        with PATH_TO_WORD_CARDS.open('r') as f:
+            self.cards = json.load(f)
 
     def add_player(self, player_name):
         """
@@ -169,10 +184,13 @@ class GameState(Observable):
         roles = list('?' * (len(self.players) - SPIES_COUNT) + 'SS')
         shuffle(roles)
 
+        card = random.choice(self.cards)
+        secret_word = random.choice(card)
+
         for index, player_name in enumerate(self.players):
             player = self.players[player_name]
             if roles[index] is 'S':
-                player.make_spy()
+                player.make_spy(secret_word)
             else:
                 player.make_counter_spy()
 

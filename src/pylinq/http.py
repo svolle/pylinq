@@ -155,7 +155,8 @@ class EventSocketHandler(BaseHandler, tornado.websocket.WebSocketHandler):
         if player is self.player:
             self.write_message({
                 'event': Events.PLAYER_ROLE_ASSIGNED,
-                'role': player.role
+                'role': player.role,
+                'secret_word': player.secret_word
             })
 
 
@@ -165,6 +166,8 @@ class StaticFileHandler(tornado.web.StaticFileHandler):
         self.set_header('Cache-Control', 'no-cache')
 
 routes = [
+    (r'/',                       tornado.web.RedirectHandler,
+        {"url": '/static/index.html'}),
     (r'/join',                   PlayerJoinHandler),
     (r'/quit',                   PlayerQuitHandler),
     (r'/players',                PlayerListHandler),

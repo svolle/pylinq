@@ -142,6 +142,7 @@ require(['jquery', 'lib/knockout-3.1.0'], function($, ko) {
         this.playerName         = ko.observable('');
         this.playerRole         = ko.observable(false);
         this.getPlayerRole      = ko.computed(this._getPlayerRole, this);
+        this.playerSecretWord   = ko.observable(false);
         this.playerList         = playerList;
 
         this.isConnected        = ko.observable(false);
@@ -226,6 +227,10 @@ require(['jquery', 'lib/knockout-3.1.0'], function($, ko) {
 
         onRoleAssigned: function(event, data) {
             this.playerRole(data.role);
+            this.playerSecretWord(data.secret_word);
+            if(data.role === IS_SPY) {
+                alert('You are a spy! Your secret word is "' + data.secret_word + "'.");
+            }
         },
 
         startGame: function() {
@@ -234,6 +239,8 @@ require(['jquery', 'lib/knockout-3.1.0'], function($, ko) {
                 if(!response.started) {
                     return alert('Could not start game: ' + response.error || 'error unknown');
                 }
+
+
             });
         },
 

@@ -1,6 +1,6 @@
 import unittest
 from pylinq.game import *
-from pylinq.player import Player
+from pylinq.player import Player, IS_SPY, PlayerException
 from mock import Mock
 from random import Random
 
@@ -44,14 +44,25 @@ class GameTest(unittest.TestCase):
         self.game.player_picks_word('foo', 'bar')
         foo.add_word.assert_called_with('bar')
 
+    def test_player_picks_own_secret_word(self):
+        player = self.game.add_player('player')
+        player.make_spy('secret')
+        self.assertRaises(PlayerException,
+                          self.game.player_picks_word, 'player', 'secret')
+
     def test_assign_roles(self):
         for i in range(0, 7):
             self.game.add_player('bar-%d' % i)
 
         self.game.assign_player_roles()
 
+        nb_spies = 0
+
         for player in self.game.players.values():
             self.assertIsNotNone(player.role)
+            if player.role is IS_SPY:
+                nb_spies += 1
+                self.assertLessEqual(nb_spies, SPIES_COUNT, "Too many spies")
 
     def test_start(self):
         for i in range(0, 7):
